@@ -1,0 +1,647 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+
+
+
+	<Frame name="Atr_UIOptionsFrame">
+		<Scripts>
+			<OnLoad>
+				self.name = "Auctionator"
+				InterfaceOptions_AddCategory(self);
+			</OnLoad>
+			<OnShow>
+				local f = _G["Atr_BasicOptionsFrame"];
+				if (f) then
+					InterfaceOptionsFrame_OpenToCategory (f)
+					self:Hide();
+				end
+			</OnShow>
+		</Scripts>
+
+	</Frame>
+
+  <!-- Template for a single option "box" containing a checkbox --> 
+
+	<Frame name="Atr_SingleOptionTemplate" virtual="true">
+		<Size><AbsDimension y="40" /></Size>		
+		<Anchors>
+			<Anchor point="LEFT" ><Offset><AbsDimension x="20"/></Offset></Anchor>
+			<Anchor point="RIGHT"><Offset><AbsDimension x="-20"/></Offset></Anchor>
+		</Anchors>
+
+		<Scripts>
+			<OnEnter>	Atr_ShowOptionTooltip(self);	</OnEnter>
+			<OnLeave>	GameTooltip:Hide();		</OnLeave>
+		</Scripts>
+
+		<Frames>
+			<CheckButton name="$parent_CB" inherits="UICheckButtonTemplate">
+				<Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="0" y="0"/></Offset></Anchor></Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<FontString name="$parent_Text" inherits="GameFontHighlight">
+							<Anchors>
+								<Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$parent">
+									<Offset><AbsDimension x="8" y="1"/></Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnEnter>	Atr_ShowOptionTooltip(self:GetParent());	</OnEnter>
+					<OnLeave>	GameTooltip:Hide();		</OnLeave>
+					<OnClick>	Atr_Option_OnClick (self);	</OnClick>
+				</Scripts>
+			</CheckButton>
+		</Frames>
+	</Frame>
+	
+
+  <!-- Template for auctionator options panels --> 
+
+	<Frame name="Atr_OptionsPanelTemplate" virtual="true">
+
+		<Backdrop bgFile="Interface\CharacterFrame\UI-Party-Background" tile="true">
+			<BackgroundInsets><AbsInset left="5" right="5" top="5" bottom="5"/></BackgroundInsets>
+			<TileSize><AbsValue val="32"/></TileSize>
+		</Backdrop>
+
+		<Layers>
+			<Layer level="BACKGROUND">
+				<FontString name="$parent_ATitle" inherits="GameFontNormalLarge">
+					<Anchors><Anchor point="TOPLEFT"><Offset x="20" y="-15"/></Anchor></Anchors>
+				</FontString>
+				<FontString name="$parent_BTitle" inherits="GameFontHighlightSmall">
+					<Anchors><Anchor point="TOPLEFT"><Offset x="20" y="-40"/></Anchor></Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+
+	</Frame>
+
+  <!-- The Mask for the interface options frame --> 
+
+	<Frame name="Atr_Mask_StdOptionsTempl" enableMouse="true" virtual="true">
+		<Anchors>
+			<Anchor point="TOPLEFT"><Offset><AbsDimension x="0" y="0"/></Offset></Anchor>
+			<Anchor point="BOTTOMRIGHT"><Offset><AbsDimension x="0" y="0"/></Offset></Anchor>
+		</Anchors>
+	
+		<Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" tile="true">
+			<TileSize><AbsValue val="16"/></TileSize>
+		</Backdrop>
+
+		<Scripts>
+			<OnLoad>
+				self:SetBackdropColor(0.2, 0.2, 0.2);
+			</OnLoad>
+		</Scripts>
+	</Frame>
+
+  <!-- The Basic Options panel --> 
+
+	<Frame name="Atr_BasicOptionsFrame" inherits="Atr_OptionsPanelTemplate" parent="UIParent" enableMouse="true" hidden="true">
+
+		<Scripts>
+			<OnLoad>
+				self.TimeSinceLastUpdate = 0;
+				Atr_LoadOptionsSubPanel (self, ZT("Basic Options"));
+			</OnLoad>
+			<OnUpdate>
+				Atr_BasicOptionsUpdate (self, elapsed);
+			</OnUpdate>
+		</Scripts>
+
+
+		<Frames>
+						
+			<Frame name="AuctionatorOption_Enable_Alt" inherits="Atr_SingleOptionTemplate">
+				<Anchors><Anchor point="TOP"><Offset><AbsDimension y="-80"/></Offset></Anchor></Anchors>
+				<Scripts>
+					<OnLoad>	AuctionatorOption_Enable_Alt_CB_Text:SetText (ZT("Enable alt-key shortcut"));	</OnLoad>
+				</Scripts>
+			</Frame>
+
+			<Frame name="AuctionatorOption_Open_All_Bags" inherits="Atr_SingleOptionTemplate">
+				<Anchors><Anchor point="TOP"><Offset><AbsDimension y="-115"/></Offset></Anchor></Anchors>
+				<Scripts>
+					<OnLoad>	AuctionatorOption_Open_All_Bags_CB_Text:SetText (ZT("Automatically open all bags"));	</OnLoad>
+				</Scripts>
+			</Frame>
+
+
+			<Frame name="AuctionatorOption_Show_StartingPrice" inherits="Atr_SingleOptionTemplate">
+				<Anchors><Anchor point="TOP"><Offset><AbsDimension y="-150"/></Offset></Anchor></Anchors>
+				<Scripts>
+					<OnLoad>	AuctionatorOption_Show_StartingPrice_CB_Text:SetText (ZT("Show Starting Price on the Sell Tab"));	</OnLoad>
+				</Scripts>
+			</Frame>
+
+
+			<Frame name="AuctionatorOption_Def_Duration" inherits="Atr_SingleOptionTemplate">
+				<Anchors><Anchor point="TOP"><Offset><AbsDimension y="-185"/></Offset></Anchor></Anchors>
+				<Scripts>
+					<OnLoad>	AuctionatorOption_Def_Duration_CB_Text:SetText (ZT("Set a default duration"));	</OnLoad>
+				</Scripts>
+			</Frame>
+
+			<Frame name="AuctionatorOption_Durations" hidden="true">
+				<Size><AbsDimension x="250" y="25"/>	</Size>
+				<Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="40" y="-220"/></Offset></Anchor></Anchors>
+				<Frames>
+					<CheckButton name="Atr_RB_S" inherits="UIRadioButtonTemplate">
+						<Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="20" y="0"/></Offset></Anchor></Anchors>
+						<Scripts>
+							<OnLoad> _G[self:GetName().."Text"]:SetFormattedText(FORMATED_HOURS, 12); </OnLoad>
+							<OnClick> Atr_SetDurationOptionRB (self:GetName()); </OnClick>
+						</Scripts>
+					</CheckButton>
+					<CheckButton name="Atr_RB_M" inherits="UIRadioButtonTemplate">
+						<Anchors><Anchor point="LEFT" relativeTo="Atr_RB_SText" relativePoint="RIGHT"><Offset><AbsDimension x="20" y="0"/></Offset></Anchor></Anchors>
+						<Scripts>
+							<OnLoad> _G[self:GetName().."Text"]:SetFormattedText(FORMATED_HOURS, 24); </OnLoad>
+							<OnClick> Atr_SetDurationOptionRB (self:GetName()); </OnClick>
+						</Scripts>
+					</CheckButton>
+					<CheckButton name="Atr_RB_L" inherits="UIRadioButtonTemplate">
+						<Anchors><Anchor point="LEFT" relativeTo="Atr_RB_MText" relativePoint="RIGHT"><Offset><AbsDimension x="20" y="0"/></Offset></Anchor></Anchors>
+						<Scripts>
+							<OnLoad> _G[self:GetName().."Text"]:SetFormattedText(FORMATED_HOURS, 48); </OnLoad>
+							<OnClick> Atr_SetDurationOptionRB (self:GetName()); </OnClick>
+						</Scripts>
+					</CheckButton>
+				</Frames>
+			</Frame>
+
+			<Frame name="AuctionatorOption_Deftab_Text">
+				<Size><AbsDimension x="180" y="20" /></Size>		
+				<Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="30" y="-261"/></Offset></Anchor></Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parent_Text" inherits="GameFontHighlight" text="Default Auctionator tab">
+							<Anchors><Anchor point="TOPLEFT"><Offset x="0" y="0"/></Anchor></Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnEnter>	Atr_ShowOptionTooltip(self);	</OnEnter>
+					<OnLeave>	GameTooltip:Hide();		</OnLeave>
+				</Scripts>
+			</Frame>
+
+			<Frame name="AuctionatorOption_Deftab" inherits="UIDropDownMenuTemplate">
+				<Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="165" y="-255"/></Offset></Anchor></Anchors>
+				<Scripts>
+					<OnLoad>
+						UIDropDownMenu_Initialize(self, AuctionatorOption_Deftab_Initialize);
+						UIDropDownMenu_JustifyText (AuctionatorOption_Deftab, "LEFT");
+					</OnLoad>
+				</Scripts>
+			</Frame>
+			
+		</Frames>
+	</Frame>
+	
+
+  <!-- The Tooltips Options screen --> 
+
+	<Frame name="Atr_TooltipsOptionsFrame" inherits="Atr_OptionsPanelTemplate" parent="UIParent" enableMouse="true" hidden="true">
+
+		<Scripts>
+			<OnLoad>
+				Atr_LoadOptionsSubPanel (self, ZT("Tooltips"));
+			</OnLoad>
+		</Scripts>
+
+		<Layers>
+			<Layer level="BACKGROUND">
+				<FontString inherits="GameFontNormal" text="When SHIFT is down show">
+					<Anchors><Anchor point="TOPLEFT"><Offset x="20" y="-181"/></Anchor></Anchors>
+				</FontString>
+				<FontString inherits="GameFontNormal" text="Show disenchanting details">
+					<Anchors><Anchor point="TOPLEFT"><Offset x="20" y="-251"/></Anchor></Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+
+
+		<Frames>
+			<Frame name="ATR_tipsVendorOpt" inherits="Atr_SingleOptionTemplate">
+				<Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="20" y="-70"/></Offset></Anchor></Anchors>
+				<Scripts>
+					<OnLoad>	ATR_tipsVendorOpt_CB_Text:SetText (ZT("Show vendor prices in tooltips"));	</OnLoad>
+				</Scripts>
+			</Frame>
+
+			<Frame name="ATR_tipsAuctionOpt" inherits="Atr_SingleOptionTemplate">
+				<Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="20" y="-95"/></Offset></Anchor></Anchors>
+				<Scripts>
+					<OnLoad>	ATR_tipsAuctionOpt_CB_Text:SetText (ZT("Show auction house prices in tooltips"));	</OnLoad>
+				</Scripts>
+			</Frame>
+
+			<Frame name="ATR_tipsDisenchantOpt" inherits="Atr_SingleOptionTemplate">
+				<Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="20" y="-120"/></Offset></Anchor></Anchors>
+				<Scripts>
+					<OnLoad>	ATR_tipsDisenchantOpt_CB_Text:SetText (ZT("Show disenchant prices in tooltips"));	</OnLoad>
+				</Scripts>
+			</Frame>
+			
+			<Frame name="Atr_tipsShiftDD" inherits="UIDropDownMenuTemplate">
+				<Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="50" y="-197"/></Offset></Anchor></Anchors>
+				<Scripts>
+					<OnLoad>
+						UIDropDownMenu_Initialize(self, Atr_tipsShiftDD_Initialize);
+						UIDropDownMenu_SetSelectedValue(Atr_tipsShiftDD, 1);
+						UIDropDownMenu_JustifyText (Atr_tipsShiftDD, "LEFT");
+					</OnLoad>
+				</Scripts>
+			</Frame>
+
+			<Frame name="Atr_deDetailsDD" inherits="UIDropDownMenuTemplate">
+				<Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="50" y="-267"/></Offset></Anchor></Anchors>
+				<Scripts>
+					<OnLoad>
+						UIDropDownMenu_Initialize(self, Atr_deDetailsDD_Initialize);
+						UIDropDownMenu_SetWidth (Atr_deDetailsDD, 175, 5);
+						UIDropDownMenu_JustifyText (Atr_deDetailsDD, "LEFT");
+						UIDropDownMenu_SetSelectedValue(Atr_deDetailsDD, 1);
+					</OnLoad>
+				</Scripts>
+			</Frame>
+		</Frames>
+	</Frame>
+
+   <!-- Template for one line of the Undercutting Configuration screen --> 
+
+	
+	<Frame name="AuctionatorUCTemplate" virtual="true" hidden="true">
+		<Size><AbsDimension x="450" y="25" /></Size>		
+
+		<Layers>
+			<Layer level="BACKGROUND">
+				<FontString inherits="GameFontHighlight" name="$parent_RangeText" justifyH="LEFT" justifyV="TOP"></FontString>
+			</Layer>
+		</Layers>
+
+		<Frames>		
+			<Frame inherits="MoneyInputFrameTemplate" name="$parent_MoneyInput">
+				<Anchors><Anchor point="TOPLEFT"><Offset x="150" y="-5"/></Anchor></Anchors>
+			</Frame>
+		</Frames>
+
+	</Frame>
+	
+   <!-- The Undercutting Configuration screen --> 
+
+	<Frame name="Atr_UCConfigFrame" inherits="Atr_OptionsPanelTemplate" parent="UIParent" enableMouse="true" hidden="true">
+
+		<Scripts>
+			<OnLoad>
+				Atr_LoadOptionsSubPanel (self, ZT("Undercutting"));
+			</OnLoad>
+		</Scripts>
+
+		<Layers>
+
+			<Layer level="BACKGROUND">
+				<FontString inherits="GameFontNormal" text="Buyout Price">
+					<Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="20" y="-63"/></Offset></Anchor></Anchors>
+				</FontString>
+				<FontString inherits="GameFontNormal" text="Undercut by">
+					<Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="165" y="-63"/></Offset></Anchor></Anchors>
+				</FontString>
+				<FontString inherits="GameFontNormal" text="Starting Price Discount">
+					<Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="25" y="-290"/></Offset></Anchor></Anchors>
+				</FontString>
+				<FontString inherits="GameFontHighlight" text="percent">
+					<Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="240" y="-290"/></Offset></Anchor></Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		
+		<Frames>
+			
+			<Frame name="UC_5000000" inherits="AuctionatorUCTemplate" hidden="false"><Anchors><Anchor point="TOPLEFT"><Offset x="20" y="-80"/></Anchor></Anchors></Frame>
+			<Frame name="UC_1000000" inherits="AuctionatorUCTemplate" hidden="false"><Anchors><Anchor point="TOPLEFT"><Offset x="20" y="-103"/></Anchor></Anchors></Frame>
+			<Frame name="UC_200000"  inherits="AuctionatorUCTemplate" hidden="false"><Anchors><Anchor point="TOPLEFT"><Offset x="20" y="-126"/></Anchor></Anchors></Frame>
+			<Frame name="UC_50000"   inherits="AuctionatorUCTemplate" hidden="false"><Anchors><Anchor point="TOPLEFT"><Offset x="20" y="-149"/></Anchor></Anchors></Frame>
+			<Frame name="UC_10000"   inherits="AuctionatorUCTemplate" hidden="false"><Anchors><Anchor point="TOPLEFT"><Offset x="20" y="-172"/></Anchor></Anchors></Frame>
+			<Frame name="UC_2000"    inherits="AuctionatorUCTemplate" hidden="false"><Anchors><Anchor point="TOPLEFT"><Offset x="20" y="-195"/></Anchor></Anchors></Frame>
+			<Frame name="UC_500"     inherits="AuctionatorUCTemplate" hidden="false"><Anchors><Anchor point="TOPLEFT"><Offset x="20" y="-218"/></Anchor></Anchors></Frame>
+
+			<EditBox name="Atr_Starting_Discount" autoFocus="false" numeric="true" inherits="InputBoxTemplate">
+				<Size><AbsDimension x="24" y="20"/></Size>
+				<Anchors><Anchor point="TOPLEFT"><Offset x="210" y="-286"/></Anchor></Anchors>
+				<FontString inherits="ChatFontNormal" bytes="64"/>
+			</EditBox>
+
+
+	
+			<Button name="$parent_Reset" inherits="UIPanelButtonTemplate" text="Reset to Default">
+				<Size><AbsDimension x="150" y="22"/>	</Size>
+				<Anchors><Anchor point="BOTTOMLEFT"><Offset><AbsDimension x="20" y="15"/></Offset></Anchor></Anchors>
+				<Scripts>
+					<OnClick>
+						Atr_ResetSavedVars();
+						Atr_SetupUCConfigFrame();
+					</OnClick>
+				</Scripts>
+			</Button>
+
+		</Frames>		
+		
+	</Frame>
+
+  <!-- The Sell Stacking screen --> 
+
+
+	<Frame name="Atr_StackingOptionsFrame" inherits="Atr_OptionsPanelTemplate" parent="UIParent" enableMouse="true" hidden="true">
+
+		<Scripts>
+			<OnLoad>
+				Atr_LoadOptionsSubPanel (self, ZT("Selling"), nil, ZT("Configure how you typically like to sell the items listed below."));
+			</OnLoad>
+		</Scripts>
+
+		<Layers>
+			<Layer level="BACKGROUND">
+			</Layer>
+		</Layers>
+
+		<Frames>
+
+			<ScrollFrame name="Atr_Stacking_ScrollFrame" inherits="FauxScrollFrameTemplate">
+				<Size><AbsDimension y="240"/></Size>
+				<Anchors>
+					<Anchor point="TOPLEFT"><Offset><AbsDimension x="10" y="-95"/></Offset></Anchor>
+					<Anchor point="RIGHT"><Offset><AbsDimension x="-30"/></Offset></Anchor>
+				</Anchors>
+
+				<Scripts>
+					<OnVerticalScroll>
+						FauxScrollFrame_OnVerticalScroll(self, offset, 16, Atr_StackingList_Display); 
+					</OnVerticalScroll>
+				</Scripts>
+			</ScrollFrame>
+
+			<Frame name="Atr_Stacking_List">
+				<Size><AbsDimension y="240"/></Size>
+				<Anchors>
+					<Anchor point="TOPLEFT"><Offset><AbsDimension x="10" y="-95"/></Offset></Anchor>
+					<Anchor point="RIGHT"><Offset><AbsDimension x="-30"/></Offset></Anchor>
+				</Anchors>
+
+				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border"><EdgeSize><AbsValue val="16"/></EdgeSize></Backdrop>			
+			</Frame>
+
+			<Button name="$parent_Edit" inherits="UIPanelButtonTemplate" text="Edit">
+				<Size><AbsDimension x="80" y="18"/></Size>
+				<Anchors><Anchor point="TOPLEFT" relativeTo="Atr_Stacking_ScrollFrame" relativePoint="BOTTOMLEFT"><Offset><AbsDimension x="5" y="-7"/></Offset></Anchor></Anchors>
+				<Scripts>
+					<OnClick>Atr_StackingList_Edit_OnClick()</OnClick>
+				</Scripts>
+				<NormalFont style="GameFontNormalSmall"/>
+				<HighlightFont style="GameFontHighlightSmall"/>
+				<DisabledFont style="GameFontDisableSmall"/>
+			</Button>
+
+			<Button name="$parent_New" inherits="UIPanelButtonTemplate" text="New">
+				<Size><AbsDimension x="80" y="18"/></Size>
+				<Anchors><Anchor point="LEFT" relativeTo="$parent_Edit" relativePoint="RIGHT"><Offset><AbsDimension x="7"/></Offset></Anchor></Anchors>
+				<Scripts>
+					<OnClick>Atr_StackingList_New_OnClick()</OnClick>
+				</Scripts>
+				<NormalFont style="GameFontNormalSmall"/>
+				<HighlightFont style="GameFontHighlightSmall"/>
+				<DisabledFont style="GameFontDisableSmall"/>
+			</Button>
+
+		</Frames>
+	</Frame>
+
+
+	<Button name="Atr_StackingEntryTemplate" virtual="true" hidden="true">
+		<Size><AbsDimension y="16" /></Size>		
+		<Anchors>
+			<Anchor point="LEFT"><Offset><AbsDimension x="6"/></Offset></Anchor>
+			<Anchor point="RIGHT"><Offset><AbsDimension x="-6"/></Offset></Anchor>
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<FontString name="$parent_text" inherits="GameFontHighlightSmall" justifyH="LEFT">
+					<Size><AbsDimension x="160" y="16" /></Size>
+					<Anchors><Anchor point="LEFT"><Offset><AbsDimension x="12"/></Offset></Anchor></Anchors>
+				</FontString>
+				<FontString name="$parent_info" inherits="GameFontHighlightSmall" justifyH="LEFT">
+					<Size><AbsDimension y="16" /></Size>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parent_text" relativePoint="RIGHT"><Offset><AbsDimension x="10"/></Offset></Anchor>
+						<Anchor point="RIGHT"><Offset><AbsDimension x="10"/></Offset></Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+
+		<PushedTexture file="Interface\HelpFrame\HelpFrameButton-Highlight" alphaMode="ADD">
+			<TexCoords left="0.15" right="0.25" top="0.0" bottom="0.6"/>
+		</PushedTexture>
+		<HighlightTexture file="Interface\HelpFrame\HelpFrameButton-Highlight" alphaMode="ADD">
+			<TexCoords left="0.05" right="0.07" top="0.1" bottom="0.5"/>
+		</HighlightTexture>
+		<Scripts>
+			<OnClick>
+				Atr_StackingEntry_OnClick(self);
+			</OnClick>
+			<OnDoubleClick>
+				Atr_StackingEntry_OnDoubleClick(self);
+			</OnDoubleClick>
+		</Scripts>
+	</Button>
+
+
+
+   <!-- Memorize Stacking screen --> 
+
+	<Frame name="Atr_MemorizeFrame" toplevel="true" parent="Atr_StackingOptionsFrame" frameStrata="FULLSCREEN_DIALOG" enableMouse="true" hidden="true">
+		<Size><AbsDimension x="430" y="250" /></Size>		
+		<Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="-100" y="-30"/></Offset></Anchor></Anchors>
+
+		<Backdrop bgFile="Interface\CharacterFrame\UI-Party-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
+			<BackgroundInsets><AbsInset left="11" right="12" top="12" bottom="11"/></BackgroundInsets>
+			<TileSize><AbsValue val="32"/></TileSize>
+			<EdgeSize><AbsValue val="32"/></EdgeSize>
+		</Backdrop>
+
+		<Layers>
+			<Layer level="BACKGROUND">
+			
+				<FontString name="Atr_Mem_itemName_text" inherits="GameFontNormalSmall" justifyH="LEFT" text="Item Name">
+					<Size><AbsDimension x="200" y="20" /></Size>		
+					<Anchors><Anchor point="TOPLEFT"><Offset x="40" y="-50"/></Anchor></Anchors>
+				</FontString>
+
+				<FontString name="Atr_Mem_itemName_static" inherits="GameFontHighlight" justifyH="LEFT">
+					<Size><AbsDimension x="300" y="20" /></Size>		
+					<Anchors><Anchor point="TOPLEFT" relativeTo="Atr_Mem_itemName_text" relativePoint="TOPLEFT"><Offset><AbsDimension x="10" y="-20"/></Offset></Anchor></Anchors>
+				</FontString>
+
+
+				<FontString name="Atr_Mem_stacksOf_text" inherits="GameFontNormal" justifyH="RIGHT" text="stacks of">
+					<Size><AbsDimension x="120" y="30" /></Size>		
+					<Anchors><Anchor point="TOPLEFT"><Offset x="165" y="-120"/></Anchor></Anchors>
+				</FontString>
+
+			</Layer>
+		</Layers>
+
+		<Scripts>
+			<OnHide>HideInterfaceOptionsMask()</OnHide>
+		</Scripts>
+
+		<Frames>
+
+			<EditBox name="Atr_Mem_EB_itemName" autoFocus="true" inherits="InputBoxTemplate" hidden="true">
+				<Size><AbsDimension x="300" y="22"/></Size>
+				<Anchors><Anchor point="TOPLEFT" relativeTo="Atr_Mem_itemName_text" relativePoint="TOPLEFT"><Offset><AbsDimension x="0" y="-20"/></Offset></Anchor></Anchors>
+			</EditBox>
+			
+
+			<Frame name="Atr_Mem_DD_numStacks" inherits="UIDropDownMenuTemplate">
+				<Anchors><Anchor point="RIGHT" relativeTo="Atr_Mem_stacksOf_text" relativePoint="LEFT"><Offset><AbsDimension x="60" y="-2"/></Offset></Anchor></Anchors>
+				<Scripts>
+					<OnLoad> Atr_SONumStacks_OnLoad(self);	</OnLoad>
+				</Scripts>
+			</Frame>
+			
+			<EditBox name="Atr_Mem_EB_stackSize" autoFocus="false" numeric="true" inherits="InputBoxTemplate">
+				<Size><AbsDimension x="40" y="20"/></Size>
+				<Anchors><Anchor point="LEFT" relativeTo="Atr_Mem_stacksOf_text" relativePoint="RIGHT"><Offset><AbsDimension x="22" y="-1"/></Offset></Anchor></Anchors>
+				<FontString inherits="ChatFontNormal" bytes="64" justifyH="CENTER" />
+			</EditBox>
+			
+
+			<Button name="Atr_Mem_Forget" inherits="UIPanelButtonTemplate" text="">
+				<Size><AbsDimension x="150" y="18"/>	</Size>
+				<Anchors><Anchor point="BOTTOMLEFT"><Offset><AbsDimension x="20" y="18"/></Offset></Anchor></Anchors>
+				<Scripts>
+					<OnClick>
+						Atr_Memorize_Forget();
+						Atr_MemorizeFrame:Hide();
+					</OnClick>
+				</Scripts>
+				<NormalFont style="GameFontNormalSmall"/>
+				<HighlightFont style="GameFontHighlightSmall"/>
+				<DisabledFont style="GameFontDisableSmall"/>
+			</Button>
+
+			<Button name="Atr_Mem_Cancel" inherits="UIPanelButtonTemplate" text="CANCEL">
+				<Size><AbsDimension x="80" y="22"/>	</Size>
+				<Anchors><Anchor point="BOTTOMRIGHT"><Offset><AbsDimension x="-20" y="17"/></Offset></Anchor></Anchors>
+				<Scripts>
+					<OnClick>
+						Atr_MemorizeFrame:Hide();
+					</OnClick>
+				</Scripts>
+			</Button>
+
+			<Button inherits="UIPanelButtonTemplate" text="OKAY">
+				<Size><AbsDimension x="80" y="22"/>	</Size>
+				<Anchors><Anchor point="RIGHT" relativePoint="LEFT" relativeTo="Atr_Mem_Cancel"><Offset><AbsDimension x="-3" y="0"/></Offset></Anchor></Anchors>
+				<Scripts>
+					<OnClick>
+						Atr_Memorize_Save();
+						Atr_MemorizeFrame:Hide();
+					</OnClick>
+				</Scripts>
+			</Button>
+
+		</Frames>
+	</Frame>
+
+
+
+  <!-- The Scanning Options screen --> 
+
+	<Frame name="Atr_ScanningOptionsFrame" inherits="Atr_OptionsPanelTemplate" parent="UIParent" enableMouse="true" hidden="true">
+
+		<Scripts>
+			<OnLoad>
+				Atr_LoadOptionsSubPanel (self, ZT("Scanning"));
+			</OnLoad>
+		</Scripts>
+
+		<Frames>
+			<Frame>
+				<Size><AbsDimension x="160" y="22" /></Size>		
+				<Anchors><Anchor point="TOPLEFT"><Offset x="15" y="-62"/></Anchor></Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<FontString inherits="GameFontNormal" text="Minimum quality level:"/>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnEnter>	Atr_scanLevelDD_showTip(self);	</OnEnter>
+					<OnLeave>	GameTooltip:Hide();		</OnLeave>
+				</Scripts>
+			</Frame>
+			
+			<Frame name="Atr_scanLevelDD" inherits="UIDropDownMenuTemplate">
+				<Size><AbsDimension x="220" y="22" /></Size>		
+				<Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="160" y="-60"/></Offset></Anchor></Anchors>
+				<Scripts>
+					<OnLoad>
+						UIDropDownMenu_Initialize(self, Atr_scanLevelDD_Initialize);
+						UIDropDownMenu_SetSelectedValue(Atr_scanLevelDD, 1);
+						UIDropDownMenu_JustifyText (Atr_scanLevelDD, "LEFT");
+					</OnLoad>
+					<OnEnter>	Atr_scanLevelDD_showTip(self);	</OnEnter>
+					<OnLeave>	GameTooltip:Hide();		</OnLeave>
+				</Scripts>
+			</Frame>
+		</Frames>
+		
+	</Frame>
+
+
+
+  <!-- The About screen --> 
+
+
+	<Frame name="AuctionatorDescriptionFrame" inherits="Atr_OptionsPanelTemplate" parent="UIParent" enableMouse="true" hidden="true">
+
+		<Scripts>
+			<OnLoad>
+				Atr_LoadOptionsSubPanel (self, ZT("About"), ZT("About Auctionator"));
+			</OnLoad>
+		</Scripts>
+
+		<Layers>
+			<Layer level="BACKGROUND">
+				<FontString text="Author:  Zirco" inherits="GameFontDisableSmall" justifyH="LEFT" justifyV="TOP">
+					<Anchors><Anchor point="BOTTOMLEFT"><Offset><AbsDimension x="30" y="35"/></Offset></Anchor></Anchors>
+				</FontString>
+				<FontString name="AuctionatorVersionText" inherits="GameFontDisableSmall" justifyH="LEFT" justifyV="TOP">
+					<Anchors><Anchor point="BOTTOMLEFT"><Offset><AbsDimension x="30" y="20"/></Offset></Anchor></Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+
+		<Frames>
+
+			<SimpleHTML name="AuctionatorDescriptionHTML">
+				<Size><AbsDimension x="320" y="120" /></Size>		
+				<Anchors>
+					<Anchor point="TOPLEFT"><Offset><AbsDimension x="20" y="-70"/></Offset></Anchor>
+				</Anchors>
+				<FontString inherits="GameFontHighlightSmall"/>
+				<FontStringHeader1 inherits="GameFontNormal"/>
+			</SimpleHTML>
+
+
+		</Frames>
+	</Frame>
+
+
+
+</Ui>

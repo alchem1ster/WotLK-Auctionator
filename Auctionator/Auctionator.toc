@@ -1,0 +1,37 @@
+## Interface: 40000
+## Title: Auctionator
+## Version: 2.6.8
+## Author: Zirco
+## X-Website: http://auctionator-addon.com
+## X-Localizations: enUS, deDE, ruRU, svSE, frFR, esES
+## Notes: A lightweight addon that makes it easy and fast to buy, sell and manage auctions
+## SavedVariablesPerCharacter: AUCTIONATOR_SHOW_ST_PRICE, AUCTIONATOR_ENABLE_ALT, AUCTIONATOR_OPEN_FIRST, AUCTIONATOR_OPEN_BUY, AUCTIONATOR_OPEN_ALL_BAGS, AUCTIONATOR_DEF_DURATION, AUCTIONATOR_SHOW_TIPS, AUCTIONATOR_V_TIPS, AUCTIONATOR_A_TIPS, AUCTIONATOR_D_TIPS, AUCTIONATOR_SHIFT_TIPS, AUCTIONATOR_DE_DETAILS_TIPS, AUCTIONATOR_DEFTAB
+## SavedVariables: AUCTIONATOR_SAVEDVARS, AUCTIONATOR_PRICING_HISTORY, AUCTIONATOR_SHOPPING_LISTS, AUCTIONATOR_PRICE_DATABASE, AUCTIONATOR_MEAN_PRICE_DATABASE AUCTIONATOR_LAST_SCAN_TIME, AUCTIONATOR_TOONS, AUCTIONATOR_STACKING_PREFS, AUCTIONATOR_SCAN_MINLEVEL
+
+Locales\enUS.lua
+Locales\deDE.lua
+Locales\ruRU.lua
+Locales\frFR.lua
+Locales\svSE.lua
+Locales\esES.lua
+
+zcUtils.lua
+
+Auctionator.lua
+AuctionatorShop.lua
+
+Auctionator.xml
+
+AuctionatorLocalize.lua
+AuctionatorPane.lua
+AuctionatorScan.lua
+AuctionatorQuery.lua
+AuctionatorHints.lua
+AuctionatorVendor.lua
+AuctionatorConflicts.lua
+AuctionatorAPI.lua
+AuctionatorConfig.lua
+AuctionatorBuy.lua
+
+AuctionatorConfig.xml
+
