@@ -10,7 +10,9 @@ Auctionator is designed for casual everyday auction house users. Auctionator mak
 - Fixed a bug while performing a full scan of the auction house, when the names of some items are not loaded from the server and it caused an infinity hang;
 - A new mark has been added to the items tooltip - the [median](https://en.wikipedia.org/wiki/Median) price. Calculated based on the last 25 full scans of the auction house and stored in `SavedVars`.
 
-![](https://i115.fastpic.org/big/2021/0926/e6/020ebdf2dfa301ea50233b5315c318e6.png)
+<p align="center">
+<img src="https://i115.fastpic.org/big/2021/0926/e6/020ebdf2dfa301ea50233b5315c318e6.png">
+</p>
 
 ## How to use (only once every 15-20 minutes)
  - Open the auction house;
