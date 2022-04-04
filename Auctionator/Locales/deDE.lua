@@ -252,6 +252,7 @@ AtrL["Russian translation courtesy of %s"] = "Russische Übersetzung von %s"
 AtrL["Auctionator"] = "Auctionator"
 AtrL["Author:  Zirco"] = "Autor: Zirco"
 AtrL["Version"] = "Version"
+AtrL["Options"] = "Optionen"
 
 
 --   Misc
