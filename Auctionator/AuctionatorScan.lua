@@ -136,6 +136,7 @@ end
 function AtrScan:Init (itemName)
 	self.itemName			= itemName;
 	self.itemLink			= nil;
+	self.texture			= "";
 	self.scanData			= {};
 	self.sortedData			= {};
 	self.whenScanned		= 0;
@@ -331,8 +332,17 @@ function AtrSearch:AnalyzeResultsPage()
 
 				if (self.items[name] == nil) then
 					self.items[name] = Atr_FindScanAndInit (name);
+                    self.items[name].texture = texture
 				end
-				
+                
+                if texture ~= self.items[name].texture then
+                    name = name .. " "
+                    if (self.items[name] == nil) then
+                        self.items[name] = Atr_FindScanAndInit (name);
+                        self.items[name].texture = texture
+                    end
+                end
+                
 				local curpage = (tonumber(self.current_page)-1);
 
 				local scn = self.items[name];
