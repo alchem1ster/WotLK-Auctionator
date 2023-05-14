@@ -136,7 +136,7 @@ end
 function AtrScan:Init (itemName)
 	self.itemName			= itemName;
 	self.itemLink			= nil;
-	self.texture			= "";
+	self.texture            = nil;
 	self.scanData			= {};
 	self.sortedData			= {};
 	self.whenScanned		= 0;
@@ -334,8 +334,7 @@ function AtrSearch:AnalyzeResultsPage()
 					self.items[name] = Atr_FindScanAndInit (name);
                     self.items[name].texture = texture
 				end
-                
-                if texture ~= self.items[name].texture then
+                if self.items[name].texture and texture ~= self.items[name].texture then
                     name = name .. " "
                     if (self.items[name] == nil) then
                         self.items[name] = Atr_FindScanAndInit (name);
@@ -1052,8 +1051,6 @@ function Atr_FullScanStart()
 		Atr_FullScanStatus:SetText (ZT("Scanning").."...");
 		Atr_FullScanStartButton:Disable();
 		Atr_FullScanDone:Disable();
-	
-		gAtr_FullScanState = ATR_FS_STARTED;
 		
 		gAtr_FullScanStart = time();
 		gAtr_FullScanDur   = nil;
@@ -1069,6 +1066,7 @@ function Atr_FullScanStart()
 		else
 			QueryAuctionItems ("", nil, nil, 0, 0, 0, 0, 0, 0, true);
 		end
+        gAtr_FullScanState = ATR_FS_STARTED;
 	end
 
 end
